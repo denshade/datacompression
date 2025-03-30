@@ -14,10 +14,12 @@ public class RunLength {
             while(true) {
                 int character = inputStream.read();
                 if (isEndOfStream(character)) {
-                    if (repeatCount < 4) {
-                        writeNonCompressedCharacters(repeatCount, outputStream, savedCharacter);
-                    } else {
-                        writeRepeatedCharacters(outputStream, repeatCount, savedCharacter);
+                    if (charCount > 0) {
+                        if (repeatCount < 4) {
+                            writeNonCompressedCharacters(repeatCount, outputStream, savedCharacter);
+                        } else {
+                            writeRepeatedCharacters(outputStream, repeatCount, savedCharacter);
+                        }
                     }
                     return;
                 }
