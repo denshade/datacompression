@@ -1,6 +1,5 @@
 package info.thelaboflieven.compression;
 
-import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -14,15 +13,11 @@ public class RunLength {
         try {
             while(true) {
                 int character = inputStream.read();
-                if (character == -1) {
+                if (isEndOfStream(character)) {
                     if (repeatCount < 4) {
-                        for (int i = 0; i < repeatCount; i++) {
-                            outputStream.write(savedCharacter);
-                        }
+                        writeNonCompressedCharacters(repeatCount, outputStream, savedCharacter);
                     } else {
-                        outputStream.write('@');
-                        outputStream.write(repeatCount);
-                        outputStream.write(savedCharacter);
+                        writeRepeatedCharacters(outputStream, repeatCount, savedCharacter);
                     }
                     return;
                 }
@@ -32,15 +27,11 @@ public class RunLength {
                 }  else if (savedCharacter == character) {
                     repeatCount++;
                 }  else if (repeatCount < 4) {
-                    for (int i = 0; i < repeatCount; i++) {
-                        outputStream.write(savedCharacter);
-                    }
+                    writeNonCompressedCharacters(repeatCount, outputStream, savedCharacter);
                     repeatCount = 1;
                     savedCharacter = character;
                 } else {
-                    outputStream.write('@');
-                    outputStream.write(repeatCount);
-                    outputStream.write(savedCharacter);
+                    writeRepeatedCharacters(outputStream, repeatCount, savedCharacter);
                     repeatCount = 1;
                     savedCharacter = character;
                 }
@@ -50,13 +41,25 @@ public class RunLength {
         }
     }
 
+    private static void writeRepeatedCharacters(OutputStream outputStream, byte repeatCount, int savedCharacter) throws IOException {
+        outputStream.write('@');
+        outputStream.write(repeatCount);
+        outputStream.write(savedCharacter);
+    }
+
+    private static void writeNonCompressedCharacters(byte repeatCount, OutputStream outputStream, int savedCharacter) throws IOException {
+        for (int i = 0; i < repeatCount; i++) {
+            outputStream.write(savedCharacter);
+        }
+    }
+
     public static void decode(InputStream inputStream, OutputStream outputStream) {
         int character = 0;
         boolean compressionFlag = false;
         while(true) {
             try {
                 character = inputStream.read();
-                if (character == -1) {
+                if (isEndOfStream(character)) {
                     return;
                 }
                 if (!compressionFlag) {
@@ -77,5 +80,9 @@ public class RunLength {
                 e.printStackTrace();
             }
         }
+    }
+
+    private static boolean isEndOfStream(int character) {
+        return character == -1;
     }
 }

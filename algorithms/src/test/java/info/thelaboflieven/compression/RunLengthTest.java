@@ -23,7 +23,7 @@ class RunLengthTest {
 
     @Test
     void encodeAndDecodeMultiples() {
-        var test = "aaaaabbb";
+        var test = "aaaaabbbaaaaabbb";
         ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
         RunLength.encode(new ByteArrayInputStream(test.getBytes()), outputStream);
         ByteArrayOutputStream expectedOutput = new ByteArrayOutputStream();
