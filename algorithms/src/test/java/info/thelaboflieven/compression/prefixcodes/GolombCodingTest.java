@@ -9,7 +9,8 @@ class GolombCodingTest {
     @Test
     void encode() {
         var g = new GolombCoding();
-        g.encode(10, 11);
+        var b = g.encode(10, 11);
+        assertEquals(11, g.decode(10, b));
     }
 
 }
