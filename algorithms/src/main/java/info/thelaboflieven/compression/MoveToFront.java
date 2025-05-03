@@ -16,7 +16,7 @@ public class MoveToFront {
                 if (history.contains(character)) {
 
                 }
-                outputStream.write();
+                //outputStream.write();
             } catch (IOException e) {
                 e.printStackTrace();
             }
