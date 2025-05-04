@@ -13,6 +13,10 @@ public class RunLength {
         try {
             while(true) {
                 int character = inputStream.read();
+                if (character == '@') {
+                    writeNonCompressedCharacters((byte)1, outputStream, '@');
+                    writeNonCompressedCharacters((byte)1, outputStream, '@');
+                }
                 if (isEndOfStream(character)) {
                     if (charCount > 0) {
                         if (repeatCount < 4) {
@@ -61,6 +65,12 @@ public class RunLength {
         while(true) {
             try {
                 character = inputStream.read();
+                if (compressionFlag && character == '@') {
+                    outputStream.write(character);
+                    inputStream.read();
+                    compressionFlag = false;
+                    continue;
+                }
                 if (isEndOfStream(character)) {
                     return;
                 }

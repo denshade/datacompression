@@ -43,4 +43,15 @@ class RunLengthTest {
         assertEquals(test, expectedOutput.toString());
     }
 
+    @Test
+    void encodeEscape() {
+        var test = "@";
+        ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
+        RunLength.encode(new ByteArrayInputStream(test.getBytes()), outputStream);
+        ByteArrayOutputStream expectedOutput = new ByteArrayOutputStream();
+
+        RunLength.decode(new ByteArrayInputStream(outputStream.toString().getBytes(StandardCharsets.UTF_8)), expectedOutput);
+        assertEquals(test, expectedOutput.toString());
+    }
+
 }
