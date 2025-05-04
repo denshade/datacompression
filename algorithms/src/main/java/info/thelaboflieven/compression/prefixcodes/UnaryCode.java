@@ -9,7 +9,6 @@ public class UnaryCode {
         if (number < 1) {
             throw new RuntimeException("number < 0: " + number);
         }
-        var bitset = new BitSet();
         for (int i = 0; i < number; i++) {
             bitSetStream.addBit(true);
         }
@@ -18,9 +17,8 @@ public class UnaryCode {
     }
 
     public long decode(BitSetStream bitSetStream) {
-        BitSet set = bitSetStream.getBitSet();
         int i = 0;
-        while (set.get(i++)) {}
-        return i - 1;
+        while (bitSetStream.readBit()) {i++;}
+        return i;
     }
 }

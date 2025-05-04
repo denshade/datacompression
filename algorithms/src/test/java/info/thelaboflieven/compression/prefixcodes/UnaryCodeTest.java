@@ -27,8 +27,8 @@ class UnaryCodeTest {
     @Test
     public void testDeCode() {
         var unaryCode = new UnaryCode();
-        assertEquals(1, unaryCode.decode(getEncode(unaryCode, 1)));
-        assertEquals(3, unaryCode.decode(getEncode(unaryCode, 3)));
+        assertEquals(1, unaryCode.decode(getEncode(unaryCode, 1).asReadStream()));
+        assertEquals(3, unaryCode.decode(getEncode(unaryCode, 3).asReadStream()));
 
     }
 

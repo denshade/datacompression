@@ -10,6 +10,17 @@ public class BitSetStream {
         bitset.set(currentIndex++, flag);
     }
 
+    public boolean readBit() {
+        return bitset.get(currentIndex++);
+    }
+
+    public BitSetStream asReadStream() {
+        var set = new BitSetStream();
+        set.bitset = bitset;
+        set.currentIndex = 0;
+        return set;
+    }
+
     public BitSet getBitSet() {
         return bitset;
     }
