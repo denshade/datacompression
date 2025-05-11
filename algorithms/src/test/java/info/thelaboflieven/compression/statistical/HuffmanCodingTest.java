@@ -3,6 +3,8 @@ package info.thelaboflieven.compression.statistical;
 import info.thelaboflieven.compression.BitSetStream;
 import org.junit.jupiter.api.Test;
 
+import java.util.Arrays;
+
 import static org.junit.jupiter.api.Assertions.*;
 
 class HuffmanCodingTest {
@@ -15,6 +17,9 @@ class HuffmanCodingTest {
         var t = huffmanCoding.createTree(data.getBytes());
         huffmanCoding.encode(data.getBytes(), setStream, t);
         var result = huffmanCoding.decode(setStream.asReadStream(), t);
-        assertEquals(data.getBytes(), result);
+        var b = data.getBytes();
+        for (int i = 0; i < b.length; i++) {
+            assertEquals(b[i], result[i]);
+        }
     }
 }

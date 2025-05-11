@@ -2,10 +2,7 @@ package info.thelaboflieven.compression.statistical;
 
 import info.thelaboflieven.compression.BitSetStream;
 
-import java.util.Comparator;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.PriorityQueue;
+import java.util.*;
 
 public class HuffmanCoding {
 
@@ -47,8 +44,47 @@ public class HuffmanCoding {
         }
     }
 
-    public byte[] decode(BitSetStream bitSetStream, HuffmanNode t) {
-        return new byte[0];
+    private static Map<Boolean[], Byte> invert(Map<Byte, Boolean[]> myHashMap) {
+        Map<Boolean[], Byte> myNewHashMap = new HashMap<>();
+        for(Map.Entry<Byte, Boolean[]> entry : myHashMap.entrySet()){
+            myNewHashMap.put(entry.getValue(), entry.getKey());
+        }
+        return myNewHashMap;
+    }
+
+    public Byte[] decode(BitSetStream bitSetStream, HuffmanNode t) {
+        var map = toByteToBooleanMap(t, new StringBuilder());
+        var boolArrayToByte = invert(map);
+        List<Byte> result = new ArrayList<>();
+        List<Boolean> buffer = new ArrayList<Boolean>();
+        while (bitSetStream.hasBitsLeft()) {
+            buffer.add(bitSetStream.readBit());
+            var mappedByte = getByteForBools(boolArrayToByte, buffer);
+            if (mappedByte == null) {
+                continue;
+            }
+            result.add(mappedByte);
+            buffer.clear();
+        }
+        return result.toArray(new Byte[0]);
+    }
+
+    private Byte getByteForBools(Map<Boolean[], Byte> boolArrayToByte, List<Boolean> buffer) {
+        for (var key : boolArrayToByte.keySet()) {
+            boolean keyMatched = true;
+            if (key.length != buffer.size()) {
+                continue;
+            }
+            for (int index = 0; index < key.length; index++) {
+                if (key[index] != buffer.get(index)) {
+                    keyMatched = false;
+                }
+            }
+            if (keyMatched) {
+                return boolArrayToByte.get(key);
+            }
+        }
+        return null;
     }
 
 
@@ -74,15 +110,15 @@ public class HuffmanCoding {
         return priorityQueue.poll();
     }
 
-    private static boolean[] bitStringToBoolean(String bitString){
-        var b = new boolean[bitString.length()];
+    private static Boolean[] bitStringToBoolean(String bitString){
+        var b = new Boolean[bitString.length()];
         for (int i = 0; i < bitString.length(); i++) {
             b[i] = bitString.charAt(i) == '1';
         }
         return b;
     }
 
-    public static Map<Byte, boolean[]> toByteToBooleanMap(HuffmanNode root, StringBuilder code) {
+    public static Map<Byte, Boolean[]> toByteToBooleanMap(HuffmanNode root, StringBuilder code) {
         if (root == null) return Map.of();
 
         // If this is a leaf node, print the character and its code
@@ -90,7 +126,7 @@ public class HuffmanCoding {
             System.out.println(root.data + ": " + code);
             return Map.of(root.data, bitStringToBoolean(code.toString()));
         }
-        var map = new HashMap<Byte, boolean[]>();
+        var map = new HashMap<Byte, Boolean[]>();
         // Traverse the left subtree
         if (root.left != null) {
             map.putAll(toByteToBooleanMap(root.left, code.append('0')));
