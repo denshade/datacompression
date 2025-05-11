@@ -10,10 +10,14 @@ class GolombCodingTest {
     @Test
     void encode() {
         var g = new GolombCoding();
-        var b = g.encode(10, 11, new BitSetStream());
-        assertEquals(11, g.decode(10, b.asReadStream()));
-        b = g.encode(10, 12, new BitSetStream());
-        assertEquals(12, g.decode(10, b.asReadStream()));
+
+        var b = g.encode(10, 13, new BitSetStream());
+        assertEquals(13, g.decode(10, b.asReadStream()));
+
+        for (int i = 10; i < 20; i++) {
+            b = g.encode(10, i, new BitSetStream());
+            assertEquals(i, g.decode(10, b.asReadStream()));
+        }
     }
 
 }

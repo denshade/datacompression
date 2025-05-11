@@ -39,7 +39,7 @@ public class GolombCoding {
         if (r < comp) {
             return result + r;
         } else {
-            var r2 = convert(set, b);
+            var r2 = convert(set, b + 1);
             return result + m - (long)Math.pow(2, b + 1) + r2;
         }
     }
