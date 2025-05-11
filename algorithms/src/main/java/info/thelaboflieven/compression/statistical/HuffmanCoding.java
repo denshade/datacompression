@@ -9,6 +9,7 @@ import java.util.PriorityQueue;
 
 public class HuffmanCoding {
 
+
     class HuffmanNode {
         // Character data
         byte data;
@@ -37,27 +38,19 @@ public class HuffmanCoding {
     }
 
     public void encode(byte[] data, BitSetStream setStream, HuffmanNode tree) {
-        var frequencyMap = toFrequencyMap(data);
-        PriorityQueue<HuffmanNode> priorityQueue =
-                new PriorityQueue<>(Comparator.comparingInt(a -> a.frequency));
-        // Create a Huffman node for each character and add it to the priority queue
-        for (byte c : frequencyMap.keySet()) {
-            priorityQueue.add(new HuffmanNode(c, frequencyMap.get(c)));
+        var map = toByteToBooleanMap(tree, new StringBuilder());
+        for (var d: data) {
+            var bools = map.get(d);
+            for (boolean bool: bools) {
+                setStream.addBit(bool);
+            }
         }
-
-        while (priorityQueue.size() > 1) {
-            var left = priorityQueue.poll();
-            var right = priorityQueue.poll();
-            var newNode =
-                    new HuffmanNode((byte)'$', left.frequency + right.frequency);
-            newNode.left = left;
-            newNode.right = right;
-            priorityQueue.add(newNode);
-        }
-
-        var root = priorityQueue.poll();
-        printCodes(root, new StringBuilder());
     }
+
+    public byte[] decode(BitSetStream bitSetStream, HuffmanNode t) {
+        return new byte[0];
+    }
+
 
     public HuffmanNode createTree(byte[] data) {
         var frequencyMap = toFrequencyMap(data);
@@ -81,25 +74,35 @@ public class HuffmanCoding {
         return priorityQueue.poll();
     }
 
-    public static void printCodes(HuffmanNode root, StringBuilder code) {
-        if (root == null) return;
+    private static boolean[] bitStringToBoolean(String bitString){
+        var b = new boolean[bitString.length()];
+        for (int i = 0; i < bitString.length(); i++) {
+            b[i] = bitString.charAt(i) == '1';
+        }
+        return b;
+    }
+
+    public static Map<Byte, boolean[]> toByteToBooleanMap(HuffmanNode root, StringBuilder code) {
+        if (root == null) return Map.of();
 
         // If this is a leaf node, print the character and its code
         if (root.data != '$') {
             System.out.println(root.data + ": " + code);
+            return Map.of(root.data, bitStringToBoolean(code.toString()));
         }
-
+        var map = new HashMap<Byte, boolean[]>();
         // Traverse the left subtree
         if (root.left != null) {
-            printCodes(root.left, code.append('0'));
+            map.putAll(toByteToBooleanMap(root.left, code.append('0')));
             code.deleteCharAt(code.length() - 1);
         }
 
         // Traverse the right subtree
         if (root.right != null) {
-            printCodes(root.right, code.append('1'));
+            map.putAll(toByteToBooleanMap(root.right, code.append('1')));
             code.deleteCharAt(code.length() - 1);
         }
+        return map;
     }
 
 }

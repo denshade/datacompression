@@ -14,5 +14,7 @@ class HuffmanCodingTest {
         var huffmanCoding = new HuffmanCoding();
         var t = huffmanCoding.createTree(data.getBytes());
         huffmanCoding.encode(data.getBytes(), setStream, t);
+        var result = huffmanCoding.decode(setStream.asReadStream(), t);
+        assertEquals(data.getBytes(), result);
     }
 }
