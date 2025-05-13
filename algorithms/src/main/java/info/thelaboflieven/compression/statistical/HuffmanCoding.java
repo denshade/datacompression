@@ -62,6 +62,25 @@ public class HuffmanCoding {
         }
     }
 
+    public HuffmanNode readTree(BitSetStream bitSetStream) {
+        if (!bitSetStream.hasBitsLeft()){
+            return null;
+        }
+        if (bitSetStream.readBit())
+        {
+            return new HuffmanNode(bitSetStream.readByte(), 0);
+        }
+        else
+        {
+            var parent = new HuffmanNode((byte)'$', 0);
+            HuffmanNode leftChild = readTree(bitSetStream);
+            HuffmanNode rightChild = readTree(bitSetStream);
+            parent.left = leftChild;
+            parent.right = rightChild;
+            return parent;
+        }
+    }
+
     private static Map<Boolean[], Byte> invert(Map<Byte, Boolean[]> myHashMap) {
         Map<Boolean[], Byte> myNewHashMap = new HashMap<>();
         for(Map.Entry<Byte, Boolean[]> entry : myHashMap.entrySet()){

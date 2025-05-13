@@ -22,4 +22,17 @@ class HuffmanCodingTest {
             assertEquals(b[i], result[i]);
         }
     }
+
+    @Test
+    void readWriteTree() {
+        var data = "this is data";
+        var setStream = new BitSetStream();
+
+        var huffmanCoding = new HuffmanCoding();
+        var t = huffmanCoding.createTree(data.getBytes());
+        BitSetStream bitSetStream = new BitSetStream();
+        huffmanCoding.writeTree(t, bitSetStream);
+        var l = huffmanCoding.readTree(bitSetStream.asReadStream());
+        assertEquals(l, t);
+    }
 }
