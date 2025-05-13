@@ -34,4 +34,23 @@ public class BitSetStream {
         return currentIndex;
     }
 
+    public void writeByte(byte data) {
+        for (int i = 0; i < 8; i++) {
+            if ((1 << i & data) > 0 ) {
+                addBit(true);
+            } else {
+                addBit(false);
+            }
+        }
+    }
+
+    public byte readByte() {
+        byte data = 0;
+        for (int i = 0; i < 8; i++) {
+            if (readBit()) {
+                data += 1 << i;
+            }
+        }
+        return data;
+    }
 }

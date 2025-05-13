@@ -23,6 +23,10 @@ public class HuffmanCoding {
             this.frequency = frequency;
             left = right = null;
         }
+
+        public boolean isLeafNode() {
+            return left == null && right == null;
+        }
     }
 
     private Map<Byte, Integer> toFrequencyMap(byte[] data) {
@@ -41,6 +45,20 @@ public class HuffmanCoding {
             for (boolean bool: bools) {
                 setStream.addBit(bool);
             }
+        }
+    }
+
+    public void writeTree(HuffmanNode tree, BitSetStream bitSetStream) {
+        if (tree.isLeafNode())
+        {
+            bitSetStream.addBit(true);
+            bitSetStream.writeByte(tree.data);
+        }
+        else
+        {
+            bitSetStream.addBit(false);
+            writeTree(tree.left, bitSetStream);
+            writeTree(tree.right, bitSetStream);
         }
     }
 
