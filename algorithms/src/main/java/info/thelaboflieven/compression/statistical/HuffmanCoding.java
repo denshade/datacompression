@@ -24,6 +24,22 @@ public class HuffmanCoding {
             left = right = null;
         }
 
+        public String toString() {
+            if (isLeafNode()) {
+                String s = "";
+                if (left != null) {
+                    s += "L:" + left;
+                }
+                if (right != null) {
+                    s += "R:" + right;
+                }
+                return s;
+
+            } else {
+                return "B" + data;
+            }
+        }
+
         public boolean isLeafNode() {
             return left == null && right == null;
         }

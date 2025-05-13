@@ -33,6 +33,6 @@ class HuffmanCodingTest {
         BitSetStream bitSetStream = new BitSetStream();
         huffmanCoding.writeTree(t, bitSetStream);
         var l = huffmanCoding.readTree(bitSetStream.asReadStream());
-        assertEquals(l, t);
+        assertEquals(l.toString(), t.toString());
     }
 }
