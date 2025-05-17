@@ -2,61 +2,51 @@ package info.thelaboflieven.compression.image.transforms;
 
 public class DiscreteCosineTransform {
 
-    public static double[] dct(double[] input) {
-        int N = input.length;
-        double[] output = new double[N];
+    private static double M_PI = Math.PI;
 
-        // Precompute the scaling factor
-        double scale = Math.sqrt(2.0 / N);
-
-        for (int k = 0; k < N; k++) { // For each element of DCT output
-            double sum = 0.0;
-            double c;
-            if (k == 0) {
-                c = 1.0 / Math.sqrt(N); // Special scaling factor for k=0
-                for (int n = 0; n < N; n++) {
-                    sum += input[n] * Math.cos(Math.PI * (n + 0.5) * k / N);
-                }
-            } else {
-                c = scale;
-                for (int n = 0; n < N; n++) {
-                    sum += input[n] * Math.cos(Math.PI * (n + 0.5) * k / N);
+    static double[][] dct(double[][] matrix){
+        var N = matrix.length;
+        var M = matrix[0].length;
+        double[][] dctmatrix = new double[N][M];
+        int i, j, u, v;
+        for (u = 0; u < N; ++u) {
+            for (v = 0; v < M; ++v) {
+                dctmatrix[u][v] = 0;
+                for (i = 0; i < N; i++) {
+                    for (j = 0; j < M; j++) {
+                        dctmatrix[u][v] += matrix[i][j] * Math.cos(M_PI/((float)N)*(i+1./2.)*u)*Math.cos(M_PI/((float)M)*(j+1./2.)*v);
+                    }
                 }
             }
-
-            output[k] = c * sum;
         }
-
-        return output;
+        return dctmatrix;
     }
 
-    public static double[] idct(double[] input) {
-        int N = input.length;
-        double[] output = new double[N];
+    static double[][] idct(double[][] DCTMatrix){
+        var N = DCTMatrix.length;
+        var M = DCTMatrix[0].length;
+        int i, j, u, v;
+        double[][] Matrix = new double[N][M];
 
-        // Precompute the scaling factor for k=0, which is different from other coefficients
-        double scale = Math.sqrt(2.0 / N);
+        for (u = 0; u < N; ++u) {
+            for (v = 0; v < M; ++v) {
+                Matrix[u][v] = 1.0/4 * DCTMatrix[0][0];
+                for(i = 1; i < N; i++){
+                    Matrix[u][v] += 1.0/2 *DCTMatrix[i][0];
+                }
+                for(j = 1; j < M; j++){
+                    Matrix[u][v] += 1.0/2 *DCTMatrix[0][j];
+                }
 
-        for (int n = 0; n < N; n++) { // For each element of the IDCT output
-            double sum = 0.0;
-            double c;
-            if (n == 0) {
-                c = 1.0 / Math.sqrt(N); // Special scaling factor for n=0
-                for (int k = 0; k < N; k++) {
-                    sum += input[k] * Math.cos(Math.PI * (k + 0.5) * n / N);
+                for (i = 1; i < N; i++) {
+                    for (j = 1; j < M; j++) {
+                        Matrix[u][v] += DCTMatrix[i][j] * Math.cos(M_PI/((float)N)*(u+1./2.)*i)*Math.cos(M_PI/((float)M)*(v+1./2.)*j);
+                    }
                 }
-            } else {
-                c = scale;
-                for (int k = 0; k < N; k++) {
-                    sum += input[k] * Math.cos(Math.PI * (k + 0.5) * n / N);
-                }
+                Matrix[u][v] *= 2./((float)N)*2./((float)M);
             }
-
-            output[n] = c * sum;
         }
-
-        return output;
+        return Matrix;
     }
-
 
 }
