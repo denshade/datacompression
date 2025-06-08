@@ -1,6 +1,11 @@
 package info.thelaboflieven.compression.dictionary;
 
+import info.thelaboflieven.compression.BitSetStream;
+
 import java.io.*;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Queue;
 
 public class LZ77 {
     /**
@@ -39,6 +44,37 @@ public class LZ77 {
         mBufferSize = buffSize;
         searchBuffer = new StringBuffer(mBufferSize);
     }
+
+    public void encode(byte[] bytes, BitSetStream bitSetStream) {
+        int nextChar;
+        StringBuilder currentMatch = new StringBuilder();
+        int matchIndex = 0, tempIndex = 0;
+        byte d;
+        byte l;
+        byte c;
+        for (int inputByteIndex = 0; inputByteIndex < bytes.length; inputByteIndex++) {
+            var inputByte = bytes[inputByteIndex];
+            tempIndex = searchBuffer.indexOf(currentMatch.toString() + (char)inputByte);
+            if (tempIndex > -1) {
+                d = (byte)tempIndex;
+                l = (byte)currentMatch.length();
+                c = inputByte;
+                currentMatch.append((char) c);
+            } else{
+                d = 0;
+                l = 0;
+                c = inputByte;
+                currentMatch = new StringBuilder();
+            }
+            bitSetStream.writeByte(d);
+            bitSetStream.writeByte(l);
+            bitSetStream.writeByte(c);
+            inputByteIndex += l;
+            searchBuffer.append((char)inputByte);
+            trimSearchBuffer();
+        }
+    }
+
     public void encode(Reader inputReader, PrintWriter outputWriter) throws IOException {
 
         int nextChar;
