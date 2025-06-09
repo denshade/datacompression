@@ -20,4 +20,16 @@ class LZ77Test {
         assertEquals("Hello, this is a test".getBytes(), result.toByteArray());
     }
 
+    @Test
+    void matchCheckerUnknown() {
+        var searcher = new LZ77.MatchSearcher();
+        assertEquals(new LZ77.Match(0,0, 'h'), searcher.findMatch(new StringBuffer(), new LZ77.Window("hello".toCharArray(), 0)));
+    }
+
+    @Test
+    void matchCheckerKnown() {
+        var searcher = new LZ77.MatchSearcher();
+        assertEquals(new LZ77.Match(0,0, 'h'), searcher.findMatch(new StringBuffer("abra"), new LZ77.Window("a".toCharArray(), 0)));
+    }
+
 }

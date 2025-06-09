@@ -3,11 +3,23 @@ package info.thelaboflieven.compression.dictionary;
 import info.thelaboflieven.compression.BitSetStream;
 
 import java.io.*;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Queue;
 
 public class LZ77 {
+
+    public record Match(int startIndex, int length, char nextCharInInput) {
+    }
+
+    public record Window(char[] array, int currentLocation) {
+        public char currentChar() {
+            return array[currentLocation];
+        }
+    }
+
+    public static class MatchSearcher {
+        public Match findMatch(StringBuffer buffer, Window window) {
+            return new Match(0,0, window.currentChar());
+        }
+    }
     /**
      * while input is not empty do
      *     match := longest repeated occurrence of input that begins in window
@@ -46,9 +58,8 @@ public class LZ77 {
     }
 
     public void encode(byte[] bytes, BitSetStream bitSetStream) {
-        int nextChar;
         StringBuilder currentMatch = new StringBuilder();
-        int matchIndex = 0, tempIndex = 0;
+        int tempIndex = 0;
         byte d;
         byte l;
         byte c;
