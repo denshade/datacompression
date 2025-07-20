@@ -3,6 +3,11 @@ package info.thelaboflieven.compression.dictionary;
 import info.thelaboflieven.compression.BitSetStream;
 
 import java.io.*;
+import java.sql.Array;
+import java.util.ArrayList;
+import java.util.Comparator;
+import java.util.List;
+import java.util.Optional;
 
 public class LZ77 {
 
@@ -13,11 +18,36 @@ public class LZ77 {
         public char currentChar() {
             return array[currentLocation];
         }
+        public long length() {
+            return array.length - currentLocation;
+        }
+
+        public char charAt(int index) {
+            return array[index + currentLocation];
+        }
     }
 
     public static class MatchSearcher {
-        public Match findMatch(StringBuffer buffer, Window window) {
-            return new Match(0,0, window.currentChar());
+        public Optional<Match> findMatch(StringBuffer buffer, Window window) {
+            List<Match> windows = new ArrayList<>();
+            for (int windowIndex = 0; windowIndex < window.length(); windowIndex++) {
+                var q = new ArrayList<Character>();
+                for (int bufferIndex = 0; windowIndex + bufferIndex < window.length() && bufferIndex < buffer.length(); bufferIndex++) {
+                    if (window.charAt(windowIndex + bufferIndex) == buffer.charAt(bufferIndex)) {
+                        q.add(buffer.charAt(windowIndex + bufferIndex));
+                    }
+                    else {
+                        if (q.size() > 1) {
+                            windows.add(new Match(windowIndex, q.size(), buffer.charAt(bufferIndex)));
+                            q.clear();
+                        }
+                    }
+                }
+                if (q.size() > 1) {
+                    windows.add(new Match(windowIndex, q.size(), '0'));
+                }
+            }
+            return windows.stream().max(Comparator.comparingInt(a -> a.length));
         }
     }
     /**
@@ -42,7 +72,7 @@ public class LZ77 {
      * repeat
      */
 
-    public static final int DEFAULT_BUFF_SIZE = 1024;
+    private static final int DEFAULT_BUFF_SIZE = 1024;
     protected int mBufferSize;
     protected Reader inputReader;
     protected PrintWriter outputWriter;
@@ -59,12 +89,13 @@ public class LZ77 {
 
     public void encode(byte[] bytes, BitSetStream bitSetStream) {
         StringBuilder currentMatch = new StringBuilder();
+        var searcher = new MatchSearcher();
         int tempIndex = 0;
-        byte d;
-        byte l;
-        byte c;
         for (int inputByteIndex = 0; inputByteIndex < bytes.length; inputByteIndex++) {
             var inputByte = bytes[inputByteIndex];
+            var outputByte = new byte[bytes.length - inputByteIndex];
+            System.arraycopy(bytes, inputByteIndex, outputByte, 0, bytes.length - inputByteIndex);
+            searcher.findMatch(new StringBuffer(new String(outputByte)), new Window())
             tempIndex = searchBuffer.indexOf(currentMatch.toString() + (char)inputByte);
             if (tempIndex > -1) {
                 d = (byte)tempIndex;
