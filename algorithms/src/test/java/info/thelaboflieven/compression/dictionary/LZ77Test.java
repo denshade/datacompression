@@ -51,4 +51,12 @@ class LZ77Test {
         assertEquals(Optional.of(new LZ77.Match(4,4, '0')), searcher.findMatch(new StringBuffer("abra"), window));
     }
 
+    @Test
+    void matchCheckerKnown4() {
+        var searcher = new LZ77.MatchSearcher();
+        LZ77.Window window = new LZ77.Window();
+        window.addString("Hello, thi");
+        assertEquals(Optional.empty(), searcher.findMatch(new StringBuffer("s is a test"), window));
+    }
+
 }

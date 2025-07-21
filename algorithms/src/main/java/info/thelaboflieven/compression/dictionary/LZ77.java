@@ -28,6 +28,12 @@ public class LZ77 {
             chars.add(input);
             return this;
         }
+        public Window addString(String input) {
+            for (byte b : input.getBytes()) {
+                add((char)b);
+            }
+            return this;
+        }
     }
 
     public static class MatchSearcher {
@@ -36,15 +42,18 @@ public class LZ77 {
             for (int windowIndex = 0; windowIndex < window.length(); windowIndex++) {
                 var q = new ArrayList<Character>();
                 for (int bufferIndex = 0; windowIndex + bufferIndex < window.length() && bufferIndex < buffer.length(); bufferIndex++) {
-                    if (window.charAt(windowIndex + bufferIndex) == buffer.charAt(bufferIndex)) {
+                    boolean foundMatch = window.charAt(windowIndex + bufferIndex) == buffer.charAt(bufferIndex);
+                    if (foundMatch) {
                         q.add(buffer.charAt(bufferIndex));
                     }
-                    else {
-                        if (q.size() > 1) {
+                    if (!foundMatch && q.size() > 1) {
                             matches.add(new Match(windowIndex, q.size(), buffer.charAt(bufferIndex)));
                             q.clear();
                         }
+                    if (!foundMatch) {
+                        break;
                     }
+
                 }
                 if (q.size() > 1) {
                     matches.add(new Match(windowIndex, q.size(), '0'));
