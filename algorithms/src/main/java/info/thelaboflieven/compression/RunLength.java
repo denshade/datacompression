@@ -15,19 +15,15 @@ public class RunLength {
                 int character = inputStream.read();
                 if (character == '@') {
                     if (charCount == 0) {
-
                     } else if (charCount == 1) {
-                        savedCharacter = character;
                     }  else if (savedCharacter == character) {
                         repeatCount++;
                     }  else if (repeatCount < 4) {
                         writeNonCompressedCharacters(repeatCount, outputStream, savedCharacter);
                         repeatCount = 1;
-                        savedCharacter = character;
                     } else {
                         writeRepeatedCharacters(outputStream, repeatCount, savedCharacter);
                         repeatCount = 1;
-                        savedCharacter = character;
                     }
                     savedCharacter = '@';
                     charCount = 1;
