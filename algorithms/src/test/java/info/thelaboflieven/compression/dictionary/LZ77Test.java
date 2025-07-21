@@ -17,7 +17,7 @@ class LZ77Test {
         ByteArrayOutputStream result = new ByteArrayOutputStream();
         BitSetStream bitSetStream = new BitSetStream();
         lz.encode("Hello, this is a test".getBytes(), bitSetStream);
-        lz.decode(new BufferedReader(new InputStreamReader(new ByteArrayInputStream(out.toByteArray()))), new PrintWriter(result));
+        lz.decode(bitSetStream.asReadStream());
         assertEquals("Hello, this is a test".getBytes(), result.toByteArray());
     }
 
