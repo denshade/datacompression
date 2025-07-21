@@ -14,32 +14,50 @@ public class RunLength {
             while(true) {
                 int character = inputStream.read();
                 if (character == '@') {
-                    writeNonCompressedCharacters((byte)1, outputStream, '@');
-                    writeNonCompressedCharacters((byte)1, outputStream, '@');
-                }
-                if (isEndOfStream(character)) {
-                    if (charCount > 0) {
-                        if (repeatCount < 4) {
-                            writeNonCompressedCharacters(repeatCount, outputStream, savedCharacter);
-                        } else {
-                            writeRepeatedCharacters(outputStream, repeatCount, savedCharacter);
-                        }
+                    if (charCount == 0) {
+
+                    } else if (charCount == 1) {
+                        savedCharacter = character;
+                    }  else if (savedCharacter == character) {
+                        repeatCount++;
+                    }  else if (repeatCount < 4) {
+                        writeNonCompressedCharacters(repeatCount, outputStream, savedCharacter);
+                        repeatCount = 1;
+                        savedCharacter = character;
+                    } else {
+                        writeRepeatedCharacters(outputStream, repeatCount, savedCharacter);
+                        repeatCount = 1;
+                        savedCharacter = character;
                     }
-                    return;
-                }
-                charCount ++;
-                if (charCount == 1) {
-                    savedCharacter = character;
-                }  else if (savedCharacter == character) {
-                    repeatCount++;
-                }  else if (repeatCount < 4) {
-                    writeNonCompressedCharacters(repeatCount, outputStream, savedCharacter);
-                    repeatCount = 1;
-                    savedCharacter = character;
+                    savedCharacter = '@';
+                    charCount = 1;
+                    writeNonCompressedCharacters((byte)1, outputStream, '@');
+                    writeNonCompressedCharacters((byte)1, outputStream, '@');
                 } else {
-                    writeRepeatedCharacters(outputStream, repeatCount, savedCharacter);
-                    repeatCount = 1;
-                    savedCharacter = character;
+                    if (isEndOfStream(character)) {
+                        if (charCount > 0) {
+                            if (repeatCount < 4) {
+                                writeNonCompressedCharacters(repeatCount, outputStream, savedCharacter);
+                            } else {
+                                writeRepeatedCharacters(outputStream, repeatCount, savedCharacter);
+                            }
+                        }
+                        return;
+                    }
+                    charCount ++;
+                    if (charCount == 1) {
+                        savedCharacter = character;
+                    }  else if (savedCharacter == character) {
+                        repeatCount++;
+                    }  else if (repeatCount < 4) {
+                        writeNonCompressedCharacters(repeatCount, outputStream, savedCharacter);
+                        repeatCount = 1;
+                        savedCharacter = character;
+                    } else {
+                        writeRepeatedCharacters(outputStream, repeatCount, savedCharacter);
+                        repeatCount = 1;
+                        savedCharacter = character;
+                    }
                 }
             }
         } catch (IOException e) {
