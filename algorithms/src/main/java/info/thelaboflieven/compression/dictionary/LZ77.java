@@ -86,8 +86,6 @@ public class LZ77 {
 
     private static final int DEFAULT_BUFF_SIZE = 1024;
     protected int mBufferSize;
-    protected Reader inputReader;
-    protected PrintWriter outputWriter;
     protected StringBuffer searchBuffer;
 
     public LZ77() {
@@ -104,16 +102,19 @@ public class LZ77 {
         Window window = new Window();
         for (int inputByteIndex = 0; inputByteIndex < bytes.length; inputByteIndex++) {
             var inputByte = bytes[inputByteIndex];
-            var outputByte = new byte[bytes.length - inputByteIndex];
-            System.arraycopy(bytes, inputByteIndex, outputByte, 0, bytes.length - inputByteIndex);
-            var match = searcher.findMatch(new StringBuffer(new String(outputByte)), window);
+            var restOfTheInput = new byte[bytes.length - inputByteIndex];
+            System.arraycopy(bytes, inputByteIndex, restOfTheInput, 0, bytes.length - inputByteIndex);
+            var match = searcher.findMatch(new StringBuffer(new String(restOfTheInput)), window);
             if (match.isPresent()) {
                 write(match.get(), bitSetStream);
-            } else{
+                for (int k = 0; k < match.get().length; k++) {
+                    window.add((char)bytes[inputByteIndex++]);
+                }
+                inputByteIndex--;
+            } else {
                 write(new Match(0,0, (char)inputByte), bitSetStream);
+                window.add((char)inputByte);
             }
-            window.add((char)inputByte);
-            trimSearchBuffer();
         }
     }
 
@@ -142,15 +143,6 @@ public class LZ77 {
             }
         }
         return list;
-    }
-
-
-
-    private void trimSearchBuffer() {
-        if (searchBuffer.length() > mBufferSize) {
-            searchBuffer =
-                    searchBuffer.delete(0,  searchBuffer.length() - mBufferSize);
-        }
     }
 
 }

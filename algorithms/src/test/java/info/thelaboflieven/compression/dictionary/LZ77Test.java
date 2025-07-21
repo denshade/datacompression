@@ -11,14 +11,12 @@ import static org.junit.jupiter.api.Assertions.fail;
 
 class LZ77Test {
     @Test
-    void roundAbout() throws IOException {
+    void roundAbout() {
         var lz = new LZ77();
-        ByteArrayOutputStream out = new ByteArrayOutputStream();
-        ByteArrayOutputStream result = new ByteArrayOutputStream();
         BitSetStream bitSetStream = new BitSetStream();
         lz.encode("Hello, this is a test".getBytes(), bitSetStream);
-        lz.decode(bitSetStream.asReadStream());
-        assertEquals("Hello, this is a test".getBytes(), result.toByteArray());
+        var response = lz.decode(bitSetStream.asReadStream());
+        assertEquals("Hello, this is a test".chars().boxed().map(e -> (char) e.intValue()).toList(), response);
     }
 
     @Test
@@ -31,7 +29,7 @@ class LZ77Test {
     void matchCheckerKnown() {
         var searcher = new LZ77.MatchSearcher();
         LZ77.Window window = new LZ77.Window();
-        window.add('a').add('b').add('r');
+        window.addString("abr");
         assertEquals(Optional.of(new LZ77.Match(0,3, '0')), searcher.findMatch(new StringBuffer("abra"), window));
     }
 
@@ -39,7 +37,7 @@ class LZ77Test {
     void matchCheckerKnown2() {
         var searcher = new LZ77.MatchSearcher();
         LZ77.Window window = new LZ77.Window();
-        window.add('c').add('a').add('b').add('r');
+        window.addString("cabr");
         assertEquals(Optional.of(new LZ77.Match(1,3, '0')), searcher.findMatch(new StringBuffer("abra"), window));
     }
 
@@ -47,7 +45,7 @@ class LZ77Test {
     void matchCheckerKnown3() {
         var searcher = new LZ77.MatchSearcher();
         LZ77.Window window = new LZ77.Window();
-        window.add('c').add('a').add('b').add('c').add('a').add('b').add('r').add('a');
+        window.addString("cabcabra");
         assertEquals(Optional.of(new LZ77.Match(4,4, '0')), searcher.findMatch(new StringBuffer("abra"), window));
     }
 
