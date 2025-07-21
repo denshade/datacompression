@@ -31,7 +31,7 @@ public class LZ77 {
 
     public static class MatchSearcher {
         public Optional<Match> findMatch(StringBuffer buffer, Window window) {
-            List<Match> windows = new ArrayList<>();
+            List<Match> matches = new ArrayList<>();
             for (int windowIndex = 0; windowIndex < window.length(); windowIndex++) {
                 var q = new ArrayList<Character>();
                 for (int bufferIndex = 0; windowIndex + bufferIndex < window.length() && bufferIndex < buffer.length(); bufferIndex++) {
@@ -40,16 +40,16 @@ public class LZ77 {
                     }
                     else {
                         if (q.size() > 1) {
-                            windows.add(new Match(windowIndex, q.size(), buffer.charAt(bufferIndex)));
+                            matches.add(new Match(windowIndex, q.size(), buffer.charAt(bufferIndex)));
                             q.clear();
                         }
                     }
                 }
                 if (q.size() > 1) {
-                    windows.add(new Match(windowIndex, q.size(), '0'));
+                    matches.add(new Match(windowIndex, q.size(), '0'));
                 }
             }
-            return windows.stream().max(Comparator.comparingInt(a -> a.length));
+            return matches.stream().max(Comparator.comparingInt(a -> a.length));
         }
     }
     /**
