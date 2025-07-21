@@ -24,13 +24,31 @@ class LZ77Test {
     @Test
     void matchCheckerUnknown() {
         var searcher = new LZ77.MatchSearcher();
-        assertEquals(Optional.empty(), searcher.findMatch(new StringBuffer(), new LZ77.Window("hello".toCharArray(), 0)));
+        assertEquals(Optional.empty(), searcher.findMatch(new StringBuffer(), new LZ77.Window()));
     }
 
     @Test
     void matchCheckerKnown() {
         var searcher = new LZ77.MatchSearcher();
-        assertEquals(Optional.of(new LZ77.Match(0,3, '0')), searcher.findMatch(new StringBuffer("abra"), new LZ77.Window("abr".toCharArray(), 0)));
+        LZ77.Window window = new LZ77.Window();
+        window.add('a').add('b').add('r');
+        assertEquals(Optional.of(new LZ77.Match(0,3, '0')), searcher.findMatch(new StringBuffer("abra"), window));
+    }
+
+    @Test
+    void matchCheckerKnown2() {
+        var searcher = new LZ77.MatchSearcher();
+        LZ77.Window window = new LZ77.Window();
+        window.add('c').add('a').add('b').add('r');
+        assertEquals(Optional.of(new LZ77.Match(1,3, '0')), searcher.findMatch(new StringBuffer("abra"), window));
+    }
+
+    @Test
+    void matchCheckerKnown3() {
+        var searcher = new LZ77.MatchSearcher();
+        LZ77.Window window = new LZ77.Window();
+        window.add('c').add('a').add('b').add('c').add('a').add('b').add('r').add('a');
+        assertEquals(Optional.of(new LZ77.Match(4,4, '0')), searcher.findMatch(new StringBuffer("abra"), window));
     }
 
 }

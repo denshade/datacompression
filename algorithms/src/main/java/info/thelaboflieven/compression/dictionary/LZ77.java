@@ -3,7 +3,6 @@ package info.thelaboflieven.compression.dictionary;
 import info.thelaboflieven.compression.BitSetStream;
 
 import java.io.*;
-import java.sql.Array;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
@@ -14,16 +13,19 @@ public class LZ77 {
     public record Match(int startIndex, int length, char nextCharInInput) {
     }
 
-    public record Window(char[] array, int currentLocation) {
-        public char currentChar() {
-            return array[currentLocation];
-        }
+    public static class Window {
+        private List<Character> chars = new ArrayList<>();
         public long length() {
-            return array.length - currentLocation;
+            return chars.size();
         }
 
         public char charAt(int index) {
-            return array[index + currentLocation];
+            return chars.get(index);
+        }
+
+        public Window add(char input) {
+            chars.add(input);
+            return this;
         }
     }
 
@@ -34,7 +36,7 @@ public class LZ77 {
                 var q = new ArrayList<Character>();
                 for (int bufferIndex = 0; windowIndex + bufferIndex < window.length() && bufferIndex < buffer.length(); bufferIndex++) {
                     if (window.charAt(windowIndex + bufferIndex) == buffer.charAt(bufferIndex)) {
-                        q.add(buffer.charAt(windowIndex + bufferIndex));
+                        q.add(buffer.charAt(bufferIndex));
                     }
                     else {
                         if (q.size() > 1) {
@@ -88,33 +90,25 @@ public class LZ77 {
     }
 
     public void encode(byte[] bytes, BitSetStream bitSetStream) {
-        StringBuilder currentMatch = new StringBuilder();
         var searcher = new MatchSearcher();
-        int tempIndex = 0;
+        Window window = new Window();
         for (int inputByteIndex = 0; inputByteIndex < bytes.length; inputByteIndex++) {
             var inputByte = bytes[inputByteIndex];
             var outputByte = new byte[bytes.length - inputByteIndex];
             System.arraycopy(bytes, inputByteIndex, outputByte, 0, bytes.length - inputByteIndex);
-            searcher.findMatch(new StringBuffer(new String(outputByte)), new Window())
-            tempIndex = searchBuffer.indexOf(currentMatch.toString() + (char)inputByte);
-            if (tempIndex > -1) {
-                d = (byte)tempIndex;
-                l = (byte)currentMatch.length();
-                c = inputByte;
-                currentMatch.append((char) c);
+            var match = searcher.findMatch(new StringBuffer(new String(outputByte)), window);
+            if (match.isPresent()) {
+                write(match.get(), bitSetStream);
             } else{
-                d = 0;
-                l = 0;
-                c = inputByte;
-                currentMatch = new StringBuilder();
+                write(new Match(0,0, (char)inputByte), bitSetStream);
             }
-            bitSetStream.writeByte(d);
-            bitSetStream.writeByte(l);
-            bitSetStream.writeByte(c);
-            inputByteIndex += l;
-            searchBuffer.append((char)inputByte);
+            window.add((char)inputByte);
             trimSearchBuffer();
         }
+    }
+
+    private void write(Match match, BitSetStream bitSetStream) {
+
     }
 
     public void encode(Reader inputReader, PrintWriter outputWriter) throws IOException {
