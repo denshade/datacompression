@@ -41,24 +41,27 @@ public class RunLength {
                         return;
                     }
                     charCount ++;
-                    if (charCount == 1) {
-                        savedCharacter = character;
-                    }  else if (savedCharacter == character) {
-                        repeatCount++;
-                    }  else if (repeatCount < 4) {
-                        writeNonCompressedCharacters(repeatCount, outputStream, savedCharacter);
-                        repeatCount = 1;
-                        savedCharacter = character;
-                    } else {
-                        writeRepeatedCharacters(outputStream, repeatCount, savedCharacter);
-                        repeatCount = 1;
-                        savedCharacter = character;
-                    }
+                    repeatCount = storeAndGetRepeatCount(outputStream, charCount, savedCharacter, character, repeatCount);
+                    savedCharacter = character;
                 }
             }
         } catch (IOException e) {
             e.printStackTrace();
         }
+    }
+
+    private static byte storeAndGetRepeatCount(OutputStream outputStream, byte charCount, int savedCharacter, int character, byte repeatCount) throws IOException {
+        if (charCount == 1) {
+        }  else if (savedCharacter == character) {
+            repeatCount++;
+        }  else if (repeatCount < 4) {
+            writeNonCompressedCharacters(repeatCount, outputStream, savedCharacter);
+            repeatCount = 1;
+        } else {
+            writeRepeatedCharacters(outputStream, repeatCount, savedCharacter);
+            repeatCount = 1;
+        }
+        return repeatCount;
     }
 
     private static void writeRepeatedCharacters(OutputStream outputStream, byte repeatCount, int savedCharacter) throws IOException {
